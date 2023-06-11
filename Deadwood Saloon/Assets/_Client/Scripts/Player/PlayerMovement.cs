@@ -5,27 +5,22 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public Rigidbody2D rigidbody;
-    public Transform groundCheck;
-    public LayerMask groundLayer;
+    [SerializeField] private Rigidbody2D rigidbody;
+    [SerializeField] private float _speed;
 
     private float _horizontal;
-    private float _speed = 8f;
-    private float _jumpForce = 10f;
+    private float _vertical;
     private bool _isFacingRigth = true;
-    private bool _isMoving = false;
-    
-    
-    // Start is called before the first frame update
+
     void Start()
     {
         
     }
-
-    // Update is called once per frame
+    
     void Update()
     {
         rigidbody.velocity = new Vector2(_horizontal * _speed, rigidbody.velocity.y);
+        rigidbody.velocity = new Vector2(rigidbody.velocity.x, _vertical * _speed);
 
         if (!_isFacingRigth && _horizontal > 0f)
         {
@@ -37,24 +32,16 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    public void Move(InputAction.CallbackContext context)
+    public void HorizontalMove(InputAction.CallbackContext context)
     { 
         _horizontal = context.ReadValue<Vector2>().x;
     }
 
-    public void Jump(InputAction.CallbackContext context)
+    public void VerticalMove(InputAction.CallbackContext context)
     {
-        if (context.performed && _isGrounded())
-        {
-            rigidbody.velocity = new Vector2(rigidbody.velocity.x, _jumpForce);
-        }
-
-        if (context.canceled && rigidbody.velocity.y > 0f)
-        {
-            rigidbody.velocity = new Vector2(rigidbody.velocity.x, rigidbody.velocity.y * 0.5f);
-        }
+        _vertical = context.ReadValue<Vector2>().y;
     }
-
+    
     private void _flip()
     {
         _isFacingRigth = !_isFacingRigth;
@@ -62,10 +49,4 @@ public class PlayerMovement : MonoBehaviour
         localScale.x *= -1f;
         transform.localScale = localScale;
     }
-    
-    private bool _isGrounded()
-    {
-        return Physics2D.OverlapCircle(groundCheck.position, 0.2f, groundLayer);
-    }
-    
 }
